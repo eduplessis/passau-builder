@@ -2,7 +2,7 @@
   <div>
     <div class="select" :class="{selected: selectClick}" @click="selectClick = !selectClick">
       <div class="fauxselect">
-        <h4>{{attr.name}}</h4>
+        <h4>{{attr.title}}</h4>
         <div class="thecolor">
           <span class="colorName">{{liSelected}}</span>
           <span class="colorSpot" :style="{'background-color': liSelected}"></span>
@@ -40,7 +40,8 @@ export default {
     liSelected () {
       if (typeof this.selected !== "number") { return '' }
 
-      return this.attr.options[this.selected].name
+      return '';
+      // return this.attr.options[this.selected].name
     }
   }
 }
