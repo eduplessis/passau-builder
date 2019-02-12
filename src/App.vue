@@ -23,8 +23,8 @@ export default {
   },
   mounted () {
     axios
-      .get('http://passau.local/wp-json/wp/v2/builder/')
-      // .get('http://passau.eduplessis.com/wp-json/wp/v2/builder/')
+      // .get('http://passau.local/wp-json/wp/v2/builder/')
+      .get('http://passau.eduplessis.com/wp-json/wp/v2/builder/')
       .then(response => {
         this.rawData = response.data
       })
