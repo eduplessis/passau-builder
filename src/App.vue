@@ -1,13 +1,25 @@
 <template>
   <div id="app">
-    <h1>Créer votre équipement</h1>
+    <form action="">
     <div v-for="(step, index) in rawData" :key="index">
-      <div :class="'step step-'+index" v-if="currentStep == index">
+      <div :class="'step step-'+ index " v-show="currentStep == index">
         <img class="imageBase" :src="step.acf.image" :alt="step.acf.title">
         <div class="selector">
           <passauSelect class="passauSelect" v-for="(select, indexSelect) in step.acf.zones" :key="indexSelect"  :attr="select"/>
         </div>
       </div>
+
+    </div>
+    <div v-if="currentStep == rawData.length">
+      <h1 class="step-title vue">Finaliser votre demande</h1>
+      <input type="text" name="Nom" id="" placeholder="Nom">
+      <input type="email" name="Courrie" id="" placeholder="Courriel">
+      <input type="tel" name="Telephone" id="" placeholder="Téléphone">
+    </div>
+    </form>
+    <div class="navigation">
+      <a @click="currentStep--" v-if="currentStep > 0 && currentStep != rawData.length" class="prev">Étape précédente</a>
+      <a  @click="currentStep++" v-if="currentStep < rawData.length" class="next">Prochaine étape</a>
     </div>
   </div>
 </template>
@@ -23,138 +35,28 @@ export default {
   },
   mounted () {
     axios
-      // .get('http://passau.local/wp-json/wp/v2/builder/')
-      .get('http://passau.eduplessis.com/wp-json/wp/v2/builder/')
+      .get('//passau.eduplessis.com/wp-json/wp/v2/builder/' + window.location.search)
       .then(response => {
         this.rawData = response.data
       })
+
+    axios
+    .get('//passau.eduplessis.com/wp-json/wp/v2/builder_color/?per_page=100')
+    .then(response =>{
+      var rObj = {}
+
+      var resColor = response.data
+      for (var i = 0; i < resColor.length; ++i)
+        rObj[resColor[i]['id']] = resColor[i];
+      
+      this.rawColor = rObj
+    })
   },
   data () {
     return {
       currentStep:0,
       rawData:false,
-      steps:[
-        {
-          title:'Pad de gardien',
-          fldrSrc: 'pad',
-          imgSrc: 'padbase',
-          selects:[
-            {
-              name: 'zone1',
-              fldrSrc: '/builder-images/pad/',
-              options:[
-                {
-                  name: 'blue',
-                  value: 'blue',
-                  imgSrc: 'blue'
-                },
-                {
-                  name: 'grey',
-                  value: 'grey',
-                  imgSrc: 'grey'
-                },
-                {
-                  name: 'yellow',
-                  value: 'yellow',
-                  imgSrc: 'yellow'
-                },
-                {
-                  name: 'red',
-                  value: 'red',
-                  imgSrc: 'red'
-                }
-              ]
-            },
-            {
-              name: 'zone1',
-              fldrSrc: '/builder-images/pad/',
-              options:[
-                {
-                  name: 'blue',
-                  value: 'blue',
-                  imgSrc: 'blue'
-                },
-                {
-                  name: 'grey',
-                  value: 'grey',
-                  imgSrc: 'grey'
-                },
-                {
-                  name: 'yellow',
-                  value: 'yellow',
-                  imgSrc: 'yellow'
-                },
-                {
-                  name: 'red',
-                  value: 'red',
-                  imgSrc: 'red'
-                }
-              ]
-            },
-            {
-              name: 'zone1',
-              fldrSrc: '/builder-images/pad/',
-              options:[
-                {
-                  name: 'blue',
-                  value: 'blue',
-                  imgSrc: 'blue'
-                },
-                {
-                  name: 'grey',
-                  value: 'grey',
-                  imgSrc: 'grey'
-                },
-                {
-                  name: 'yellow',
-                  value: 'yellow',
-                  imgSrc: 'yellow'
-                },
-                {
-                  name: 'red',
-                  value: 'red',
-                  imgSrc: 'red'
-                }
-              ]
-            }
-          ]
-
-        },
-        {
-          title:'Pad de gardien',
-          fldrSrc: 'pad',
-          imgSrc: 'padbase',
-          selects:[
-            {
-              name: 'zone1',
-              fldrSrc: '/builder-images/pad/',
-              options:[
-                {
-                  name: 'blue',
-                  value: 'blue',
-                  imgSrc: 'blue'
-                },
-                {
-                  name: 'grey',
-                  value: 'grey',
-                  imgSrc: 'grey'
-                },
-                {
-                  name: 'yellow',
-                  value: 'yellow',
-                  imgSrc: 'yellow'
-                },
-                {
-                  name: 'red',
-                  value: 'red',
-                  imgSrc: 'red'
-                }
-              ]
-            }
-          ]
-
-        }
-      ]
+      rawColor:{}
     }
   }
 }
@@ -204,7 +106,25 @@ body{
   grid-gap: 20px;
 
 }
-.passauSelect{
+.prev{
+  font-family: Barlow;
+  font-size: 13px;
+  font-weight: 600;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: #272727;
+}
+.next{
+  font-family: Barlow;
+  font-size: 20px;
+  font-weight: 600;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: #00adee;
 }
 
 </style>
