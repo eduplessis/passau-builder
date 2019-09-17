@@ -5,89 +5,129 @@
         <div class="fauxselect">
           <h4>{{attr.title}}</h4>
           <div class="thecolor">
-            <span class="colorName">{{liSelected}}</span>
             <span class="colorSpot" :style="{background : licolorSpot}"></span>
           </div>
         </div>
         <ul v-show="selectClick">
-          <li v-for="(option, index) in options(attr.options)" :key="option.image" :class="{ active: index == selected }" @click="selected = index">
+          <li
+            v-for="(option, index) in options(attr.options)"
+            :key="option.image + '-li-' + index"
+            :class="{ active: index == selected }"
+            @click="selection(index) "
+          >
             {{option.name}}
             <span class="colorSpot" :style="{background : option.spotColor}"></span>
           </li>
         </ul>
-        <select v-model="selected" name="" id="">
-          <option v-for="option in attr.options" :key="option.image" :value="option.name">{{option.name}}</option>
+        <select v-model="selected" name id>
+          <option
+            v-for="(option, index) in attr.options"
+            :key="option.image + '-select-' + index"
+            :value="option.name"
+          >{{option.name}}</option>
         </select>
       </div>
     </click-outside>
-    <img class="imageSelect" :src="imageSelected">
+    <img class="imageSelect" :src="imageSelected" />
   </div>
 </template>
 
 <script>
-import ClickOutside from 'onclick-outside'
+import ClickOutside from "onclick-outside";
+import slugify from "@sindresorhus/slugify";
 
 export default {
   components: {
     ClickOutside
   },
-  name: 'passauSelect',
+  name: "passauSelect",
   props: {
-    attr: Object
+    attr: Object,
+    indexSelect: Number,
+    selected:{
+      type:[Boolean, Number],
+      default:false
+      }
   },
-  data () {
+  data() {
     return {
-      selected: false,
-      selectClick: false
-    }
+      selectClick: false,
+      title: this.attr.title,
+      selectedId : false
+    };
   },
   methods: {
-    handleClickOutside(){
-      this.selectClick = false
+    handleClickOutside() {
+      this.selectClick = false;
     },
-    options(options){
+    options(options) {
       return options.map(obj => {
-        obj.name = this.$parent.rawColor[obj.couleur].title.rendered
-        obj.spotColor = this.$parent.rawColor[obj.couleur].acf.couleur
-        return obj
-      })
-
+        obj.name = this.$parent.rawColor[obj.couleur].title.rendered;
+        obj.spotColor = this.$parent.rawColor[obj.couleur].acf.couleur;
+        return obj;
+      });
+    },
+    selection: function(id) {
+      this.selectedId = id;
     }
+
   },
   computed: {
-    imageSelected () {
-      if (typeof this.selected !== "number") { return false }
+    imageVueRender() {
+      return this.$parent.imageVue;
+    },
 
-      return this.attr.options[this.selected].image
+    imageSelected() {
+      if (typeof this.selectedId !== "number") {
+        return false;
+      }
+
+      return this.attr.options[this.selectedId][this.imageVueRender];
     },
-    optionName () {
-      return this
-      // return this.$parent.rawColor[colorcode].title.rendered
+    liSelected() {
+      if (typeof this.selectedId !== "number") {
+        return "";
+      }
+      return this.$parent.rawColor[this.attr.options[this.selectedId].couleur]
+        .title.rendered;
     },
-    liSelected () {
-      if (typeof this.selected !== "number") { return '' }
-      return this.$parent.rawColor[this.attr.options[this.selected].couleur].title.rendered
-    },
-    licolorSpot(){
-      
-      if (typeof this.selected !== "number") { return '' }
-      return this.$parent.rawColor[this.attr.options[this.selected].couleur].acf.couleur
-      // return 'red'
+    licolorSpot() {
+      if (typeof this.selectedId !== "number") {
+        return "";
+      }
+      return this.$parent.rawColor[this.attr.options[this.selectedId].couleur].acf
+        .couleur;
     }
+  },
+  watch:{
+    selectedId(){
+      this.$parent.selection.color[slugify(this.title)] = {};
+      this.$parent.selection.color[slugify(this.title)].color = this.liSelected;
+      this.$parent.selection.color[
+        slugify(this.title)
+      ].imageUrl = this.imageSelected;
+      this.$parent.selection.color[slugify(this.title)].id = this.selectedId;
+      this.$parent.selection.color[
+        slugify(this.title)
+      ].indexSelect = this.indexSelect;
+    }
+  },
+  mounted(){
+      this.selectedId = this.selected
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
-*{
-  box-sizing:border-box;
+* {
+  box-sizing: border-box;
 }
-.select{
+.select {
   display: block;
   position: relative;
   z-index: 2;
 
-  .fauxselect{
+  .fauxselect {
     background: #fff;
     padding: 20px 20px 20px 42px;
     cursor: pointer;
@@ -99,22 +139,23 @@ export default {
     border-radius: 60px;
     z-index: 20;
     position: relative;
-    .thecolor{
+    .thecolor {
       display: flex;
       align-items: center;
       flex-wrap: nowrap;
       justify-content: space-between;
 
-      .colorName{
-        font-size: 14px;
+      .colorName {
+        font-size: 12px;
+        line-height: 18px;
+        height: auto;
         font-weight: bold;
-        color: #272727;
+        color: #818181;
         text-transform: capitalize;
         margin-right: 20px;
-
       }
 
-      .colorSpot{
+      .colorSpot {
         width: 34px;
         height: 34px;
         border-radius: 100%;
@@ -122,24 +163,23 @@ export default {
       }
     }
 
-    h4{
+    h4 {
       font-family: Barlow;
-      font-size: 26px;
+      font-size: 18px;
       font-weight: 500;
       font-style: normal;
       font-stretch: normal;
-      line-height: normal;
       letter-spacing: normal;
       text-transform: capitalize;
       color: #272727;
-      margin: 0;
+      margin: 0 0 2px;
     }
   }
-  select{
+  select {
     display: none;
   }
 
-  ul{
+  ul {
     position: absolute;
     top: 50%;
     left: 0;
@@ -158,32 +198,31 @@ export default {
     letter-spacing: normal;
     color: #272727;
 
-    li{
+    li {
       padding: 15px 20px 15px 42px;
       position: relative;
       cursor: pointer;
-      .colorSpot{
+      .colorSpot {
         width: 15px;
         height: 15px;
         border-radius: 100%;
         display: block;
         position: absolute;
         right: 20px;
-        top:17px;
+        top: 17px;
       }
 
-      &.active{
+      &.active {
         background: rgba(235, 235, 235, 0.322);
       }
-      &:hover{
+      &:hover {
         background: rgb(241, 241, 241);
       }
     }
   }
 
-  &.selected{
+  &.selected {
     z-index: 300;
   }
-
 }
 </style>
